@@ -24,7 +24,7 @@ class VoteController(private val pollManager: PollManager) {
         } else null
     }
 
-    // List all votes (GET /votes)
+
     @GetMapping
     fun listVotes(): List<Vote> {
         return pollManager.listVotes()
