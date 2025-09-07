@@ -42,7 +42,3 @@ RESTful backend was implemented using **Spring Boot** and **Kotlin**. The applic
 - **Controllers:** REST endpoints for CRUD operations on Users, Polls, VoteOptions, and Votes.
 - **Serialization:** Jackson annotations prevent infinite recursion in nested JSON structures.
 - **Automated Testing:** End-to-end workflow tested using Spring Boot's `TestRestTemplate`, verifying creation of users, polls, options, and votes.
-
----
-
-*This report documents the technical work, challenges, and pending tasks for Experiment Assignment 2 in DAT250.*
