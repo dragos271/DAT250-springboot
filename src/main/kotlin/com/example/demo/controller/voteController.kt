@@ -8,13 +8,13 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/votes")
 class VoteController(private val pollManager: PollManager) {
 
-    // Cast a vote (POST /votes?userId=1&optionId=2)
+
     @PostMapping
     fun castVote(
         @RequestParam userId: Long,
         @RequestParam optionId: Long
     ): Vote? {
-        // Find poll option by searching through polls
+
         val option = pollManager.listPolls()
             .flatMap { it.options }
             .find { it.id == optionId }

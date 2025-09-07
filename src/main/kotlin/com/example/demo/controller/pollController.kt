@@ -9,19 +9,19 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/polls")
 class PollController(private val pollManager: PollManager) {
 
-    // Create poll (POST /polls)
+
     @PostMapping
     fun createPoll(@RequestBody poll: Poll): Poll {
         return pollManager.createPoll(poll.question)
     }
 
-    // List polls (GET /polls)
+
     @GetMapping
     fun listPolls(): List<Poll> {
         return pollManager.listPolls()
     }
 
-    // Add option to a poll (POST /polls/{pollId}/options)
+
     @PostMapping("/{pollId}/options")
     fun addOption(
         @PathVariable pollId: Long,
