@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/votes")
+@CrossOrigin(origins = ["*"])
 class VoteController(private val pollManager: PollManager) {
 
 
