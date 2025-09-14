@@ -58,7 +58,7 @@ onMount(async () => {
   await loadPolls();
 });
 ```
-4. Poll Selection & State Management
+3. Poll Selection & State Management
 Problem: After voting, the application would sometimes switch to a different poll than the one the user was interacting with.
 
 Solution: Improved state management to preserve the currently selected poll when refreshing data:
