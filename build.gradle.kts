@@ -1,6 +1,7 @@
 plugins {
 	kotlin("jvm") version "1.9.25"
 	kotlin("plugin.spring") version "1.9.25"
+    kotlin("plugin.jpa") version "1.9.25"
 	id("org.springframework.boot") version "3.5.5"
 	id("io.spring.dependency-management") version "1.1.7"
 }
@@ -20,16 +21,26 @@ repositories {
 }
 
 dependencies {
-	implementation("org.springframework.boot:spring-boot-starter-web")
-	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-	implementation("org.jetbrains.kotlin:kotlin-reflect")
+
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+
+
+    implementation("org.hibernate.orm:hibernate-core:7.1.1.Final")
+    implementation("jakarta.persistence:jakarta.persistence-api:3.2.0")
+    implementation("com.h2database:h2:2.3.232")
+
+
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-api:2.6.0")
-    implementation("org.springframework.boot:spring-boot-starter-validation")
-	testImplementation("org.springframework.boot:spring-boot-starter-test")
-	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
-	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    implementation(kotlin("test"))
+
+
+
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 kotlin {
@@ -38,6 +49,6 @@ kotlin {
 	}
 }
 
-tasks.withType<Test> {
+tasks.test {
 	useJUnitPlatform()
 }

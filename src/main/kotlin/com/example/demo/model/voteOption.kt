@@ -1,16 +1,28 @@
 package com.example.demo.model
 
-import com.fasterxml.jackson.annotation.JsonBackReference
-import com.fasterxml.jackson.annotation.JsonManagedReference
+import jakarta.persistence.*
 
-data class VoteOption(
-    var id: Long? = null,
-    var caption: String = "",
-    var presentationOrder: Int = 0,
+@Entity
+@Table(name = "vote_options")
+open class VoteOption() {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    open var id: Long? = null
 
-    @JsonBackReference
-    var poll: Poll? = null,   // back link to poll
+    @Column(nullable = false)
+    open var caption: String = ""
 
-    @JsonManagedReference
-    var votes: MutableList<Vote> = mutableListOf()
-)
+    @Column(nullable = false)
+    open var presentationOrder: Int = 0
+
+    @ManyToOne(optional = false)
+    open var poll: Poll? = null
+
+    @OneToMany(mappedBy = "votesOn", cascade = [CascadeType.ALL], orphanRemoval = true)
+    open var votes: MutableList<Vote> = mutableListOf()
+
+    constructor(caption: String, poll: Poll, presentationOrder: Int): this() {
+        this.caption = caption
+        this.poll = poll
+        this.presentationOrder = presentationOrder
+    }
+}
