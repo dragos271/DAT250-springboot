@@ -26,6 +26,9 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("redis.clients:jedis:6.2.0")
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
+
 
 
     implementation("org.hibernate.orm:hibernate-core:7.1.1.Final")
@@ -40,6 +43,7 @@ dependencies {
 
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
+    "developmentOnly"("org.springframework.boot:spring-boot-devtools")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 

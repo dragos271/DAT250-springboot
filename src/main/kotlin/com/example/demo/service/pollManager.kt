@@ -2,9 +2,13 @@ package com.example.demo.service
 
 import com.example.demo.model.*
 import org.springframework.stereotype.Component
+import org.springframework.data.redis.core.RedisTemplate
+import java.time.Duration
 
 @Component
-class PollManager {
+class PollManager(
+    private val redisTemplate: RedisTemplate<String, String>
+) {
 
     private val users = mutableMapOf<Long, User>()
     private val polls = mutableMapOf<Long, Poll>()
@@ -16,6 +20,59 @@ class PollManager {
     private var voteIdCounter = 1L
 
 
+    fun getPollResultsWithCache(pollId: Long): Map<Int, Int> {
+        val cacheKey = "poll:$pollId:results"
+        val hashOps = redisTemplate.opsForHash<String, String>()
+
+
+        val cached = hashOps.entries(cacheKey)
+        if (cached.isNotEmpty()) {
+
+            return cached
+                .mapKeys { it.key.toInt() }
+                .mapValues { it.value.toInt() }
+                .toSortedMap()
+        }
+
+
+        val results = getPollResultsFromDatabase(pollId)
+
+
+        if (results.isNotEmpty()) {
+            results.forEach { (order, count) ->
+                hashOps.put(cacheKey, order.toString(), count.toString())
+            }
+            redisTemplate.expire(cacheKey, Duration.ofMinutes(30))
+        }
+        return results
+    }
+
+
+    fun invalidatePollCache(pollId: Long) {
+        redisTemplate.delete("poll:$pollId:results")
+    }
+
+
+    fun incrementCachedOption(pollId: Long, presentationOrder: Int) {
+        val cacheKey = "poll:$pollId:results"
+        val field = presentationOrder.toString()
+
+        if (redisTemplate.hasKey(cacheKey) == true) {
+            redisTemplate.opsForHash<String, String>().increment(cacheKey, field, 1)
+
+            redisTemplate.expire(cacheKey, Duration.ofMinutes(30))
+        }
+    }
+
+
+    fun getPollResultsFromDatabase(pollId: Long): Map<Int, Int> {
+        val poll = polls[pollId] ?: return emptyMap()
+        return poll.options
+            .associate { option -> option.presentationOrder to option.votes.size }
+            .toSortedMap()
+    }
+
+
     fun createUser(username: String, email: String): User {
         val u = User(username, email)
         u.id = userIdCounter++
@@ -24,7 +81,6 @@ class PollManager {
     }
 
     fun listUsers(): List<User> = users.values.toList()
-
 
     fun createPoll(question: String): Poll {
         val p = Poll()
@@ -44,9 +100,10 @@ class PollManager {
         opt.presentationOrder = order
         opt.poll = p
         p.options.add(opt)
+
+        invalidatePollCache(pollId)
         return opt
     }
-
 
     fun castVote(userId: Long, option: VoteOption): Vote? {
         val user = users[userId] ?: return null
@@ -56,6 +113,13 @@ class PollManager {
         v.votesOn = option
         option.votes.add(v)
         votes[v.id!!] = v
+
+
+        option.poll?.id?.let { pollId ->
+
+            incrementCachedOption(pollId, option.presentationOrder)
+        }
+
         return v
     }
 

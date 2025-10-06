@@ -1,15 +1,17 @@
 package com.example.demo.controller
 
 import com.example.demo.model.Vote
+import com.example.demo.service.PollCacheService
 import com.example.demo.service.PollManager
 import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/votes")
 @CrossOrigin(origins = ["*"])
-class VoteController(private val pollManager: PollManager) {
-
-
+class VoteController(
+    private val pollManager: PollManager,
+    private val pollCacheService: PollCacheService
+) {
     @PostMapping
     fun castVote(
         @RequestParam userId: Long,
@@ -18,16 +20,18 @@ class VoteController(private val pollManager: PollManager) {
 
         val option = pollManager.listPolls()
             .flatMap { it.options }
-            .find { it.id == optionId }
+            .firstOrNull { it.id == optionId }
+            ?: return null
 
-        return if (option != null) {
-            pollManager.castVote(userId, option)
-        } else null
-    }
+        val vote = pollManager.castVote(userId, option)
 
 
-    @GetMapping
-    fun listVotes(): List<Vote> {
-        return pollManager.listVotes()
+        option.poll?.id?.let { pollId ->
+            pollCacheService.invalidate(pollId)
+        }
+
+
+
+        return vote
     }
 }
